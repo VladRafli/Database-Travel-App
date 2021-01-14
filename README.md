@@ -32,3 +32,5 @@ I already made this project a while ago, last change I made is creating Database
 14/01/2021
 
 - Adding Query to Create Database, Create Tables, Create Views, Create Procedures
+
+Deadline of this project is 15/01/2021, so there will be no update in near future

@@ -3,7 +3,7 @@ CREATE PROCEDURE [Show_City_TourGuideList] @city VARCHAR(50), @lowRating DECIMAL
     BEGIN
         DECLARE [Search_City] CURSOR
             FOR
-                SELECT  *
+                SELECT  NamaKota
                 FROM    Kota
                 WHERE   NamaKota = @city
 
@@ -33,7 +33,7 @@ CREATE PROCEDURE [Show_City_PackageList] @city VARCHAR(50), @lowRating DECIMAL(1
     BEGIN
         DECLARE [Search_City] CURSOR
             FOR
-                SELECT  *
+                SELECT  NamaKota
                 FROM    Kota
                 WHERE   NamaKota = @city
 
@@ -89,3 +89,44 @@ CREATE PROCEDURE [DetailWisata] @IdWisata CHAR(6) AS
     END
 
 GO;
+
+-- Select specific Admin Account by Email for Verification
+
+CREATE PROCEDURE [Admin_Account] @email VARCHAR(50) AS
+    BEGIN
+        DECLARE [Search_Account] CURSOR
+            FOR
+                SELECT  EmailUser
+                FROM    AkunAdmin
+                WHERE   EmailUser = @email
+
+        DECLARE @searched_account VARCHAR(50)
+
+        FETCH NEXT FROM [Search_Account] INTO @searched_account
+
+        IF @@FETCH_STATUS <> 0
+            PRINT 'Account that you find not available! Or there is Fetch Error...'
+        
+        WHILE @@FETCH_STATUS = 0
+            BEGIN
+                SELECT      EmailUser,
+                            PasswordUser
+                FROM        AkunAdmin
+                WHERE       EmailUser = @searched_account
+            END
+    END
+
+GO;
+
+-- Select Admin Profile Details
+
+CREATE PROCEDURE [Admin_Profile] @IdUser CHAR(6) AS
+    BEGIN
+        -- I'm a bit lazy, so i join both all the table
+        SELECT      *
+        FROM        AkunAdmin
+        JOIN        Profile ON Profile.IdProfile = AkunAdmin.IdProfile
+        JOIN        Agen ON Agen.IdAgen = Profile.IdAgen
+        JOIN        Guide ON Guide.IdGuide = Profile.IdGuide
+        WHERE       AkunAdmin.IdUser = @IdUser
+    END
