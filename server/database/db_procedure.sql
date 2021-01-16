@@ -3,8 +3,9 @@ CREATE PROCEDURE [Show_City_TourGuideList] @city VARCHAR(50), @lowRating DECIMAL
     BEGIN
         DECLARE [Search_City] CURSOR
             FOR
-                SELECT  NamaKota
-                FROM    Kota
+                -- Using View [City_List]
+                SELECT  *
+                FROM    [City_List]
                 WHERE   NamaKota = @city
 
         DECLARE @searched_city VARCHAR(50)
@@ -24,6 +25,9 @@ CREATE PROCEDURE [Show_City_TourGuideList] @city VARCHAR(50), @lowRating DECIMAL
                 WHERE   Kota.NamaKota = @searched_city
                 AND     Guide.RatingGuide BETWEEN @lowRating AND @highRating
             END
+        
+        CLOSE [Search_City]
+        DEALLOCATE [Search_City]
     END
 
 GO;
@@ -33,8 +37,9 @@ CREATE PROCEDURE [Show_City_PackageList] @city VARCHAR(50), @lowRating DECIMAL(1
     BEGIN
         DECLARE [Search_City] CURSOR
             FOR
-                SELECT  NamaKota
-                FROM    Kota
+                -- Using View [City_List]
+                SELECT  *
+                FROM    [City_List]
                 WHERE   NamaKota = @city
 
         DECLARE @searched_city VARCHAR(50)
@@ -59,6 +64,9 @@ CREATE PROCEDURE [Show_City_PackageList] @city VARCHAR(50), @lowRating DECIMAL(1
                 WHERE   Kota.NamaKota = @searched_city
                 AND     Paket.RatingPaket BETWEEN @lowRating AND @highRating
             END
+        
+        CLOSE [Search_City]
+        DEALLOCATE [Search_City]
     END
 
 GO;
@@ -67,11 +75,9 @@ GO;
 
 CREATE PROCEDURE [PaketDetail] @IdPaket CHAR(6) AS
     BEGIN
+        -- Using View [DetailPaket]
         SELECT      *
-        FROM        Paket
-        JOIN        DestinasiPaket ON DestinasiPaket.IdDestinasi = Paket.IdDestinasi
-        JOIN        FasilitasPaket ON FasilitasPaket.IdFasilitas = Paket.IdFasilitas
-        JOIN        Wisata ON Wisata.IdWisata = DestinasiPaket.IdWisata
+        FROM        [DetailPaket]
         WHERE       IdPaket = @IdPaket
     END
 
@@ -81,10 +87,9 @@ GO;
 
 CREATE PROCEDURE [DetailWisata] @IdWisata CHAR(6) AS
     BEGIN
+        -- Using View [WisataDetail]
         SELECT      *
-        FROM        Wisata
-        JOIN        FotoWisata ON FotoWisata.IdFotoWisata = Wisata.IdFotoWisata
-        JOIN        Kota ON Kota.IdKota = Wisata.IdKota
+        FROM        [WisataDetail]
         WHERE       IdWisata = @IdWisata
     END
 
@@ -96,8 +101,9 @@ CREATE PROCEDURE [Admin_Account] @email VARCHAR(50) AS
     BEGIN
         DECLARE [Search_Account] CURSOR
             FOR
+                -- Using View [AkunAdminList]
                 SELECT  EmailUser
-                FROM    AkunAdmin
+                FROM    [AkunAdminList]
                 WHERE   EmailUser = @email
 
         DECLARE @searched_account VARCHAR(50)
@@ -111,9 +117,12 @@ CREATE PROCEDURE [Admin_Account] @email VARCHAR(50) AS
             BEGIN
                 SELECT      EmailUser,
                             PasswordUser
-                FROM        AkunAdmin
+                FROM        [AkunAdminList]
                 WHERE       EmailUser = @searched_account
             END
+        
+        CLOSE [Search_Account]
+        DEALLOCATE [Search_Account]
     END
 
 GO;
@@ -124,9 +133,8 @@ CREATE PROCEDURE [Admin_Profile] @IdUser CHAR(6) AS
     BEGIN
         -- I'm a bit lazy, so i join both all the table
         SELECT      *
-        FROM        AkunAdmin
-        JOIN        Profile ON Profile.IdProfile = AkunAdmin.IdProfile
-        JOIN        Agen ON Agen.IdAgen = Profile.IdAgen
-        JOIN        Guide ON Guide.IdGuide = Profile.IdGuide
-        WHERE       AkunAdmin.IdUser = @IdUser
+        FROM        [DetailAkunAdmin]
+        WHERE       IdUser = @IdUser
     END
+
+GO;

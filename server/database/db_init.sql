@@ -26,7 +26,7 @@ CREATE TABLE [Wisata] (
     NamaWisata VARCHAR(50) NOT NULL,
     DeskripsiWisata VARCHAR(300),
     IdFotoWisata CHAR(6) NOT NULL,
-    IdKota CHAR(6) NOT NULL,
+    IdKota INT NOT NULL,
     PRIMARY KEY (IdWisata),
     FOREIGN KEY (IdFotoWisata) REFERENCES FotoWisata(IdFotoWisata) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (IdKota) REFERENCES Kota(IdKota) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -53,7 +53,7 @@ CREATE TABLE [Paket] (
     IdPaket CHAR(6) NOT NULL,
     NamaPaket VARCHAR(50) NOT NULL,
     HargaPaket INT NOT NULL,
-    KetersediaanPaket BOOLEAN NOT NULL,
+    KetersediaanPaket INT NOT NULL,
     RatingPaket DECIMAL(1, 1),
     IdDestinasi CHAR(6) NOT NULL,
     IdFasilitas CHAR(6) NOT NULL,
@@ -61,7 +61,6 @@ CREATE TABLE [Paket] (
     PRIMARY KEY (IdPaket),
     FOREIGN KEY (IdDestinasi) REFERENCES DestinasiPaket(IdDestinasi) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (IdFasilitas) REFERENCES FasilitasPaket(IdFasilitas) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (IdWisata) REFERENCES Wisata(IdWisata) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT Check_IdPaket CHECK (IdPaket LIKE ('PK[0-9][0-9][0-9][0-9]')),
     CONSTRAINT Check_RatingPaket CHECK (RatingPaket > 0.0 AND RatingPaket < 5.0)
 );
@@ -72,12 +71,12 @@ CREATE TABLE [Agen] (
     LogoAgen VARCHAR(500),
     BannerAgen VARCHAR(500),
     DeskripsiAgen VARCHAR(300),
-    VerifiedAgen BOOLEAN NOT NULL,
-    IdKota CHAR(6) NOT NULL,
+    VerifiedAgen INT NOT NULL,
+    IdKota INT NOT NULL,
     IdPaket CHAR(6) NOT NULL,
     PRIMARY KEY (IdAgen),
     FOREIGN KEY (IdKota) REFERENCES Kota(IdKota) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (IdPaket) REFERENCES Paket(IdPaket) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (IdPaket) REFERENCES Paket(IdPaket) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT Check_IdAgen CHECK (IdAgen LIKE ('AG[0-9][0-9][0-9][0-9]')),
     CONSTRAINT Check_LogoAgen CHECK (LogoAgen LIKE ('http://%') OR LogoAgen LIKE ('https://%')),
     CONSTRAINT Check_BannerAgen CHECK (BannerAgen LIKE ('http://%') OR BannerAgen LIKE ('https://%'))
@@ -88,9 +87,9 @@ CREATE TABLE [Guide] (
     NamaGuide VARCHAR(50) NOT NULL,
     HargaGuide INT NOT NULL,
     RatingGuide DECIMAL(1, 1),
-    VerifiedGuide BOOLEAN NOT NULL,
-    CertifiedGuide BOOLEAN NOT NULL,
-    IdKota CHAR(6) NOT NULL,
+    VerifiedGuide INT NOT NULL,
+    CertifiedGuide INT NOT NULL,
+    IdKota INT NOT NULL,
     PRIMARY KEY (IdGuide),
     FOREIGN KEY (IdKota) REFERENCES Kota(IdKota) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT Check_IdGuide CHECK (IdGuide LIKE ('GU[0-9][0-9][0-9][0-9]')),
@@ -137,8 +136,8 @@ CREATE TABLE [DetailTransaksi] (
     IdTransaksiPaket CHAR(6) NOT NULL,
     IdTransaksiGuide CHAR(6) NOT NULL,
     PRIMARY KEY (IdDetailTransaksi),
-    FOREIGN KEY (IdTransaksiPaket) REFERENCES Paket(IdPaket) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (IdTransaksiGuide) REFERENCES Guide(IdGuide) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (IdTransaksiPaket) REFERENCES Paket(IdPaket) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    FOREIGN KEY (IdTransaksiGuide) REFERENCES Guide(IdGuide) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT Check_IdDetailTransaksi CHECK (IdDetailTransaksi LIKE ('DT[0-9][0-9][0-9][0-9]'))
 );
 -- Table Transaksi
@@ -164,6 +163,16 @@ CREATE TABLE [RecordTransaksi] (
     FOREIGN KEY (IdTransaksi) REFERENCES Transaksi(IdTransaksi) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT Check_IdRecord CHECK (IdRecord LIKE ('RC[0-9][0-9][0-9][0-9]'))
 );
+-- Table ProfileAkun
+CREATE TABLE [ProfileAkun] (
+    IdProfile CHAR(6) NOT NULL,
+    IdAgen CHAR(6) NOT NULL,
+    IdGuide CHAR(6) NOT NULL,
+    PRIMARY KEY (IdProfile),
+    FOREIGN KEY (IdAgen) REFERENCES Agen(IdAgen) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    FOREIGN KEY (IdGuide) REFERENCES Guide(IdGuide) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    CONSTRAINT Check_IdProfile CHECK (IdProfile LIKE ('PR[0-9][0-9][0-9][0-9]'))
+);
 -- Table AkunAdmin
 CREATE TABLE [AkunAdmin] (
     IdUser INT NOT NULL UNIQUE,
@@ -172,14 +181,4 @@ CREATE TABLE [AkunAdmin] (
     IdProfile CHAR(6) NOT NULL,
     PRIMARY KEY (IdUser),
     FOREIGN KEY (IdProfile) REFERENCES ProfileAkun(IdProfile) ON DELETE CASCADE ON UPDATE CASCADE
-);
--- Table ProfileAkun
-CREATE TABLE [ProfileAkun] (
-    IdProfile CHAR(6) NOT NULL,
-    IdAgen CHAR(6) NOT NULL,
-    IdGuide CHAR(6) NOT NULL,
-    PRIMARY KEY (IdProfile),
-    FOREIGN KEY (IdAgen) REFERENCES Agen(IdAgen) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (IdGuide) REFERENCES Guide(IdGuide) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT Check_IdProfile CHECK (IdProfile LIKE ('PR[0-9][0-9][0-9][0-9]'))
 );
